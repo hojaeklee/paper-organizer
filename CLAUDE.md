@@ -11,7 +11,9 @@ uv run paper-organizer status    # Health check
 uv run paper-organizer --help    # CLI usage
 ```
 
-No test framework is configured yet.
+```bash
+uv run pytest tests/ -v           # Run tests
+```
 
 ## Architecture
 
