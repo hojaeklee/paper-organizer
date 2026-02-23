@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.paper-organizer</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/path/to/uv</string>
+        <string>run</string>
+        <string>paper-organizer</string>
+        <string>run</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/path/to/paper-organizer</string>
+    <key>WatchPaths</key>
+    <array>
+        <string>/Users/yourname/Google Drive/My Drive/Paperpile</string>
+    </array>
+    <key>ThrottleInterval</key>
+    <integer>60</integer>
+    <key>StandardOutPath</key>
+    <string>/tmp/paper-organizer.out.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/paper-organizer.err.log</string>
+</dict>
+</plist>
