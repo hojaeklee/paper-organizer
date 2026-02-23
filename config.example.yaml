@@ -1,8 +1,8 @@
 # paper-organizer config
-# Edit this file to update paths, taxonomy, or model settings.
+# Copy to config.yaml and edit paths below.
 
-paperpile_dir: ~/Google Drive/Paperpile
-obsidian_vault: ~/vault/papers
+paperpile_dir: ~/Google Drive/My Drive/Paperpile
+obsidian_vault: ~/path/to/vault/papers
 
 model:
   provider: anthropic
@@ -43,4 +43,4 @@ taxonomy:
     - relevance/low
 
 # Email to notify when a new category is created by the LLM.
-notification_email: hojae.k.lee@gmail.com
+notification_email: ""

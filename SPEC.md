@@ -70,16 +70,16 @@ model:
 # Category values use slash notation: "deep_learning/computer_vision"
 taxonomy:
   folders:
-    - single_cell_genomics
-        - spatial_transcriptomics
-    - deep_learning
-        - computer_vision
-            - classification
-            - segmentation
-        - natural_language_processing
-        - large_language_models
-    - neuroscience
-        - grid_cells
+    single_cell_genomics:
+      spatial_transcriptomics:
+    deep_learning:
+      computer_vision:
+        classification:
+        segmentation:
+      natural_language_processing:
+      large_language_models:
+    neuroscience:
+      grid_cells:
 
   tags:
     - source/article
@@ -256,6 +256,17 @@ The system prompt should:
 6. **Config-driven taxonomy**: The taxonomy lives in `config.yaml`, not in code. The LLM prompt is assembled at runtime from the config. The hierarchical structure provides context to the LLM but does not affect file storage.
 
 7. **Idempotent runs**: Running the tool multiple times should be safe. The processed log prevents re-processing, and existing notes are never overwritten.
+
+## Testing & CI
+
+- Tests use `pytest`. Mock all Anthropic API calls — never hit real API in tests.
+- Test coverage focuses on: extraction, classification parsing, state/dedup,
+  note generation. No end-to-end CLI tests.
+- GitHub Actions: single job, runs pytest on push. No matrix builds.
+- `config.yaml` is gitignored. `config.example.yaml` is committed with
+  placeholder paths.
+- Anthropic API key is read from ANTHROPIC_API_KEY env var (SDK default),
+  never stored in config or code.
 
 ## Future Enhancements (not in scope for v1)
 
