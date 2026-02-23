@@ -1,0 +1,46 @@
+# paper-organizer config
+# Edit this file to update paths, taxonomy, or model settings.
+
+paperpile_dir: ~/Google Drive/Paperpile
+obsidian_vault: ~/vault/papers
+
+model:
+  provider: anthropic
+  name: claude-haiku-4-5-20251001
+  max_input_chars: 8000
+
+# Customize these as your research interests evolve.
+# These are passed to the LLM as guidance -- not strict enums.
+# The hierarchy is for LLM context only; notes are stored flat.
+# Category values use slash notation: "deep_learning/computer_vision"
+taxonomy:
+  folders:
+    single_cell_genomics:
+      spatial_transcriptomics:
+    deep_learning:
+      computer_vision:
+        classification:
+        segmentation:
+      natural_language_processing:
+      large_language_models:
+    neuroscience:
+      grid_cells:
+
+  tags:
+    - source/article
+    - source/blog
+    - source/youtube
+    - type/dataset
+    - type/benchmark
+    - type/methodology
+    - type/theoretical
+    - type/review
+    - type/tutorial
+    - status/need_figuring_out
+    - status/completed
+    - status/reading
+    - relevance/high
+    - relevance/low
+
+# Email to notify when a new category is created by the LLM.
+notification_email: hojae.k.lee@gmail.com
