@@ -55,8 +55,10 @@ Available tags:
 def _parse_json_response(raw: str) -> dict:
     """Strip optional code fences and parse JSON, validating required keys."""
     text = raw.strip()
-    text = re.sub(r"^```(?:json)?\s*", "", text)
-    text = re.sub(r"\s*```$", "", text)
+
+    fence_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
+    if fence_match:
+        text = fence_match.group(1)
 
     data = json.loads(text)
 
@@ -65,13 +67,24 @@ def _parse_json_response(raw: str) -> dict:
     if missing:
         raise ValueError(f"Missing keys in LLM response: {missing}")
 
+    if not isinstance(data["authors"], list):
+        raise ValueError("'authors' must be a list")
+    if not isinstance(data["tags"], list):
+        raise ValueError("'tags' must be a list")
+
     return data
 
 
-def classify(text: str, config: Config) -> Classification:
+def classify(
+    text: str,
+    config: Config,
+    *,
+    client: anthropic.Anthropic | None = None,
+) -> Classification:
     """Send *text* to the configured LLM and return a ``Classification``."""
     truncated = text[: config.model.max_input_chars]
-    client = anthropic.Anthropic()
+    if client is None:
+        client = anthropic.Anthropic()
     system_prompt = _build_system_prompt(config)
 
     last_error: Exception | None = None

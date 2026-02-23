@@ -39,7 +39,7 @@ def flatten_folders(folders: dict[str, Any], prefix: str = "") -> list[str]:
     """
     paths: list[str] = []
     for key, value in folders.items():
-        current = f"{prefix}{key}" if not prefix else f"{prefix}/{key}"
+        current = f"{prefix}/{key}" if prefix else key
         if isinstance(value, dict):
             paths.extend(flatten_folders(value, current))
         else:

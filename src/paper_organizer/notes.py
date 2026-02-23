@@ -15,7 +15,8 @@ def sanitize_filename(title: str) -> str:
     """Strip forbidden chars, collapse whitespace, truncate to safe length."""
     name = FORBIDDEN_CHARS.sub("", title)
     name = re.sub(r"\s+", " ", name).strip()
-    return name[:MAX_FILENAME_LEN]
+    name = name[:MAX_FILENAME_LEN]
+    return name if name else "untitled"
 
 
 def generate_note(
@@ -37,6 +38,8 @@ def generate_note(
 title: "{title_escaped}"
 authors:
 {authors_yaml}
+doi: ""
+rating:
 category: {c.folder}
 tags:
 {tags_yaml}

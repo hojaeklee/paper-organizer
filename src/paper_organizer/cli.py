@@ -73,20 +73,27 @@ def run(
             typer.echo(f"  {pdf.name}")
         return
 
-    # --cost-estimate: extract all texts, estimate, exit
+    # --cost-estimate: extract all texts, skip scanned, estimate, exit
     if cost_estimate:
         texts = []
         for pdf, _ in candidates:
             try:
-                texts.append(extract_text(pdf))
+                text = extract_text(pdf)
+                if len(text) < MIN_TEXT_CHARS:
+                    typer.echo(f"  Skipping (scanned/low text): {pdf.name}")
+                    continue
+                texts.append(text)
             except Exception as exc:
                 typer.echo(f"  Error extracting {pdf.name}: {exc}")
         cost = estimate_cost(texts, config)
-        typer.echo(f"Estimated cost: ${cost:.4f} for {len(texts)} paper(s)")
+        typer.echo(f"Estimated cost: ${cost:.4f} for {len(texts)} paper(s) (assumes Haiku pricing)")
         return
 
     known_categories = set(flatten_folders(config.taxonomy.folders))
     date_added = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    import anthropic
+    client = anthropic.Anthropic()
 
     for pdf, h in candidates:
         try:
@@ -97,12 +104,13 @@ def run(
                 typer.echo(f"  Skipping (scanned/low text): {pdf.name}")
                 continue
 
-            result = classify(text, config)
+            result = classify(text, config, client=client)
             note_content = generate_note(result, pdf.name, date_added)
             note_filename = sanitize_filename(result.title) + ".md"
             note_dest = config.obsidian_vault / note_filename
 
             if reprocess and note_dest.exists():
+                typer.echo(f"  Overwriting existing note: {note_filename}")
                 note_dest.unlink()
 
             write_note(note_content, note_dest)
@@ -136,16 +144,19 @@ def status() -> None:
         issues.append(f"Create directory or fix obsidian_vault in config.yaml")
 
     # Count PDFs and processed
-    pdf_count = len(list(config.paperpile_dir.glob("*.pdf"))) if config.paperpile_dir.exists() else 0
     state_path = config.obsidian_vault / ".processed_papers.json"
-    processed_count = 0
-    if state_path.exists():
-        import json
-        processed_count = len(json.loads(state_path.read_text()))
+    pdf_count = 0
+    unprocessed_count = 0
+
+    if config.paperpile_dir.exists():
+        for pdf in config.paperpile_dir.glob("*.pdf"):
+            pdf_count += 1
+            if not is_processed(content_hash(pdf), state_path):
+                unprocessed_count += 1
 
     typer.echo(f"PDFs found: {pdf_count}")
-    typer.echo(f"Already processed: {processed_count}")
-    typer.echo(f"Unprocessed: {pdf_count - processed_count}")
+    typer.echo(f"Already processed: {pdf_count - unprocessed_count}")
+    typer.echo(f"Unprocessed: {unprocessed_count}")
 
     # Check API key
     api_key = os.environ.get("ANTHROPIC_API_KEY")

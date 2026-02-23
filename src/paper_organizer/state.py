@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import fcntl
 import hashlib
 import json
 from datetime import datetime, timezone
@@ -36,12 +37,15 @@ def mark_processed(
     note_file: str | None = None,
 ) -> None:
     """Append *hash_value* to the processed log at *state_path*."""
-    state = _load_state(state_path)
-    entry: dict[str, str] = {
-        "pdf_name": pdf_name,
-        "processed_at": datetime.now(timezone.utc).isoformat(),
-    }
-    if note_file is not None:
-        entry["note_file"] = note_file
-    state[hash_value] = entry
-    state_path.write_text(json.dumps(state, indent=2) + "\n")
+    lock_path = state_path.with_suffix(".lock")
+    with open(lock_path, "w") as lock_fd:
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
+        state = _load_state(state_path)
+        entry: dict[str, str] = {
+            "pdf_name": pdf_name,
+            "processed_at": datetime.now(timezone.utc).isoformat(),
+        }
+        if note_file is not None:
+            entry["note_file"] = note_file
+        state[hash_value] = entry
+        state_path.write_text(json.dumps(state, indent=2) + "\n")
